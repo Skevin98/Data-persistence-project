@@ -22,9 +22,7 @@ public class GameManager : MonoBehaviour
 
     private bool m_GameOver = false;
 
-    // High Score
-    private int highScore = 10;
-    private string bestPlayerName;
+
 
     public Text highScoreText;
 
@@ -50,10 +48,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Player name initialization
+        // Best Player name initialization
         if (MainManager.Instance != null)
         {
-            SetHighScore(highScore, MainManager.Instance.playerName);
+            // Initialize the high score text with the saved highscore and name
+            SetHighScore(MainManager.Instance.highScore, MainManager.Instance.bestPlayerName);
         }
 
 
@@ -65,7 +64,8 @@ public class GameManager : MonoBehaviour
     // Set the high score
     private void SetHighScore(int score, string name)
     {
-        highScoreText.text = $"Best Score : {score} Name : {name}";
+        Debug.Log("High Score updated");
+        highScoreText.text = $"Best Score : {score} {(name == "" ? "" : $"Name : {name}")}";
     }
 
     private void Update()
@@ -102,8 +102,20 @@ public class GameManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        SetHighScore(m_Points ,MainManager.Instance.playerName);
+        if (m_Points>MainManager.Instance.highScore)
+        {
+            // Update the instance highscore and name if the current score is more than the highscore
+            SaveNewHighScore();
+        }
+
     }
 
-    
+    private void SaveNewHighScore()
+    {
+        SetHighScore(m_Points, MainManager.Instance.playerName);
+        MainManager.Instance.highScore = m_Points;
+        MainManager.Instance.bestPlayerName = MainManager.Instance.playerName;
+        MainManager.Instance.SaveHighScore(MainManager.Instance.playerName, m_Points);
+    }
+
 }
